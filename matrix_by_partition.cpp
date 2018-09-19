@@ -6,7 +6,7 @@
 #include <time.h>
 using namespace std;
 
-int l = 10;
+int l = 2;
 clock_t starttime, endtime;
 double cpu_time_used1;
 double cpu_time_used2;
@@ -184,6 +184,8 @@ int main(int argc, char const *argv[])
     vector<vector<float>> arrC;
     vector<vector<float>> arrC_RP;
     vector<vector<float>> arrC_NP;
+
+    l = atoi(argv[1]);
 
     ifstream infile;
     infile.open ("matA.txt");
