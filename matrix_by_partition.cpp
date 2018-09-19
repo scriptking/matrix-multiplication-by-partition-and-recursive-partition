@@ -6,7 +6,7 @@
 #include <time.h>
 using namespace std;
 
-int l = 2;
+int l = 10;
 clock_t starttime, endtime;
 double cpu_time_used1;
 double cpu_time_used2;
@@ -40,12 +40,12 @@ int matmul(int si,int ei,int sj,int ej,int sk,int ek, vector<vector<float>> &arr
     for (int i = si; i <= ei; ++i)
         for (int j = sj; j <= ej; ++j)
             for (int k = sk; k <= ek; ++k)
-                tempC[i][j] += arrA[i][k] * arrB[k][j];
+                arrC[i][j] += arrA[i][k] * arrB[k][j];
 
-    for(int i = si; i <= ei; ++i)
+    /*for(int i = si; i <= ei; ++i)
         for(int j = sj; j <= ej; ++j)
             arrC[i][j]+=tempC[i][j];
-
+        //printf("manas\n");*/
     return 0;
 }
 
@@ -102,15 +102,12 @@ int matmul_recur(int ln, int hn, int lm, int hm, int lp, int hp, vector<vector<f
     {
         if (max == n)
         {
-            cout<<"hern";
             int midn = ln + floor(float(hn - ln + 1)/2);
-            cout<<midn<<endl;
             matmul_recur(ln,midn,lm,hm,lp,hp,arrA,arrB,arrC);
             matmul_recur(1+midn,hn,lm,hm,lp,hp,arrA,arrB,arrC);
         }
         else if (max == p)
         {
-            cout<<"herp";
             int midp = lp + floor((float)(hp - lp + 1)/2);
             matmul_recur(ln,hn,lm,hm,lp,midp,arrA,arrB,arrC);
             matmul_recur(ln,hn,lm,hm,1+midp,hp,arrA,arrB,arrC);
@@ -124,8 +121,11 @@ int matmul_recur(int ln, int hn, int lm, int hm, int lp, int hp, vector<vector<f
     }
     else
     {
+
         matmul(ln,hn,lp,hp,lm,hm,arrA,arrB,arrC);
+
     }
+
     return 0;
 }
 
@@ -136,6 +136,7 @@ int matmul_1_level_part(int A , int B, int C, vector<vector<float>> &arrA, vecto
     int y = ceil((float)C/l);
     int z = ceil((float)B/l);
     //cout<<x<<" "<<y<<" "<<z<<endl;
+    printf("%d %d %d\n",A,B,C);
     for(int a=1; a<=x ; a++)
     {
         int starti = (a-1)*l;
@@ -154,9 +155,9 @@ int matmul_1_level_part(int A , int B, int C, vector<vector<float>> &arrA, vecto
             else
                 endj = C-1;
 
-            for (int e = starti; e <= endi; ++e)
+            /*for (int e = starti; e <= endi; ++e)
                 for (int f = startj; f <= endj; ++f)
-                    arrC[e][f] = 0;
+                    arrC[e][f] = 0;*/
 
             for(int c = 1;c <= z;c++)
             {
@@ -166,7 +167,7 @@ int matmul_1_level_part(int A , int B, int C, vector<vector<float>> &arrA, vecto
                     endk = c*l-1;
                 else
                     endk = B-1;
-
+                //printf("manas--> si--%d ei--%d sj--%d ej--%d sk--%d ek--%d\n", starti,endi,startj,endj,startk,endk);
                 matmul(starti,endi,startj,endj,startk,endk,arrA,arrB,arrC);
             }
         }
@@ -214,48 +215,55 @@ int main(int argc, char const *argv[])
     }
     infile.close();
 
+
     arrC.resize(P);
-    for(int i = 0 ; i < R ; ++i)
+    for(int i = 0 ; i < P ; ++i)
         arrC[i].resize(R);
 
     arrC_NP.resize(P);
-    for(int i = 0 ; i < R ; ++i)
+    for(int i = 0 ; i < P ; ++i)
         arrC_NP[i].resize(R);
 
     arrC_RP.resize(P);
-    for(int i = 0 ; i < R ; ++i)
+    for(int i = 0 ; i < P ; ++i)
         arrC_RP[i].resize(R);
 
     for (int e = 0; e < P; ++e)
         for (int f = 0; f < R; ++f)
             arrC_RP[e][f] = 0;
 
-
     starttime = clock();
     matmul_NP(P,Q,R,arrA,arrB,arrC_NP);
     endtime = clock();
     cpu_time_used1 = ((double) (endtime - starttime)) / CLOCKS_PER_SEC;
+
 
     starttime = clock();
     matmul_1_level_part(P,Q,R,arrA,arrB,arrC);
     endtime = clock();
     cpu_time_used2 = ((double) (endtime - starttime)) / CLOCKS_PER_SEC;
 
-    starttime = clock();
+
+
+        starttime = clock();
     matmul_recur(0,P-1,0,Q-1,0,R-1,arrA,arrB,arrC_RP);
+
     endtime = clock();
     cpu_time_used3 = ((double) (endtime - starttime)) / CLOCKS_PER_SEC;
-
     /*matmul_1_level_part(P,Q,R,arrA,arrB,arrC);
     matmul_recur(0,P-1,0,Q-1,0,R-1,arrA,arrB,arrC_RP);
     matmul_NP(P,Q,R,arrA,arrB,arrC_NP);
 /*
-        for (int e = 0; e < P; ++e){
+     for (int e = 0; e < P; ++e){
         for (int f = 0; f < R; ++f)
-            cout << arrC_NP[e][f] << " ";
-        cout<<"\n";
-    }
+            cout << arrC_RP[e][f] << " ";
+        cout<<"\n\n";}
+
+    return 0 ;
 */
+
+        
+
     ofstream outfile;
     outfile.open ("matC_P.txt");
     for(int i = 0 ; i < P ; ++i)
